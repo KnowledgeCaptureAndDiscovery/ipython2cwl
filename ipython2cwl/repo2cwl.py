@@ -23,7 +23,8 @@ logger.setLevel(logging.INFO)
 
 def _get_notebook_paths_from_dir(dir_path: str):
     notebooks_paths = []
-    for path, _, files in os.walk(dir_path):
+    for path, dirs, files in os.walk(dir_path):
+        dirs[:] = [d for d in dirs if d not in "cwl"]
         for name in files:
             if name.endswith('.ipynb'):
                 notebooks_paths.append(os.path.join(path, name))
