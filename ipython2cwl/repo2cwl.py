@@ -47,7 +47,7 @@ def _store_jn_as_script(notebook_path: str, git_directory_absolute_path: str, bi
     notebook_name_without_extension = notebook_absolute.stem
     script_absolute = notebook_absolute.parent / notebook_name_without_extension
     #write the script, return it relative to the repo git
-    script_relative_to_git = notebook_absolute.relative_to(git_directory_absolute_path)
+    script_relative_to_git = script_absolute.relative_to(git_directory_absolute_path)
     script = os.linesep.join([
         '#!/usr/bin/env ipython',
         '"""',
