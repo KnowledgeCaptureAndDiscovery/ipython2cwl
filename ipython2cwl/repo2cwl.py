@@ -61,7 +61,7 @@ def _store_jn_as_script(notebook_path: str, git_directory_absolute_path: str, bi
     tool = converter.cwl_command_line_tool(image_id)
     tool_st = os.stat(script_absolute_path)
     os.chmod(script_absolute_path, tool_st.st_mode | stat.S_IEXEC)
-    return tool, script_absolute_path
+    return tool, str(script_absolute_path)
 
 
 def existing_path(path_str: str):
