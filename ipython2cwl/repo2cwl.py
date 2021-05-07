@@ -40,13 +40,12 @@ def _store_jn_as_script(notebook_path: str, git_directory_absolute_path: str, bi
     if len(converter._variables) == 0:
         logger.info(f"Notebook {notebook_path} does not contains typing annotations. skipping...")
         return None, None
+
+
     script_relative_path = os.path.relpath(notebook_path, git_directory_absolute_path)[:-6]
     script_relative_parent_directories = script_relative_path.split(os.sep)
     if len(script_relative_parent_directories) > 1:
         script_absolute_name = os.path.join(bin_absolute_path, os.sep.join(script_relative_parent_directories[:-1]))
-        os.makedirs(
-            script_absolute_name,
-            exist_ok=True)
         script_absolute_name = os.path.join(script_absolute_name, os.path.basename(script_relative_path))
     else:
         script_absolute_name = os.path.join(bin_absolute_path, script_relative_path)
@@ -148,7 +147,7 @@ def _repo2cwl(git_directory_path: Repo) -> Tuple[str, List[Dict]]:
     r2d.target_repo_dir = os.path.join(os.path.sep, 'app')
     r2d.repo = git_directory_path.tree().abspath
     bin_path = os.path.join(r2d.repo, 'cwl', 'bin')
-    os.makedirs(bin_path, exist_ok=True)
+    shutil.copytree(r2d.repo, bin_path)
     notebooks_paths = _get_notebook_paths_from_dir(r2d.repo)
 
     tools = []
