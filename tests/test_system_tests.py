@@ -9,7 +9,7 @@ import cwltool.factory
 import pkg_resources
 import yaml
 from cwltool.context import RuntimeContext
-
+from cwltool.errors import WorkflowException
 
 class TestConsoleScripts(TestCase):
     maxDiff = None
@@ -82,7 +82,12 @@ class TestConsoleScripts(TestCase):
         runtime_context.default_stderr = DEVNULL
         fac = cwltool.factory.Factory(runtime_context=runtime_context)
 
-        example1_tool = fac.make(os.path.join(output_dir, 'example1.cwl'))
+        try:
+            example1_tool = fac.make(os.path.join(output_dir, 'example1.cwl'))
+        except WorkflowException:
+            self.fail("Execution failed")
+
+
         result = example1_tool(
             datafilename={
                 'class': 'File', 'location': os.path.join(self.repo_like_dir, 'data.yaml')
