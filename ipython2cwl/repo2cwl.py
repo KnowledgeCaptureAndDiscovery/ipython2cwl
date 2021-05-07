@@ -58,7 +58,7 @@ def _store_jn_as_script(notebook_path: str, git_directory_absolute_path: str, bi
         git_directory_absolute_path,
         bin_absolute_path,
         ignore = shutil.ignore_patterns('*.ipynb', 'bin/'),
-        exists_ok=True
+        dirs_exist_ok=True
     )
     script = os.linesep.join([
         '#!/usr/bin/env ipython',
