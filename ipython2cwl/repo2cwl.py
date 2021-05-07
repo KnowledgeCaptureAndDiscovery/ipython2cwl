@@ -47,9 +47,18 @@ def _store_jn_as_script(notebook_path: str, git_directory_absolute_path: str, bi
         os.makedirs(
             script_absolute_name,
             exist_ok=True)
-        script_absolute_name = os.path.join(script_absolute_name, os.path.basename(script_relative_path))
+        script_absolute_name = os.path.join(
+            script_absolute_name,
+            os.path.basename(script_relative_path)
+        )
     else:
         script_absolute_name = os.path.join(bin_absolute_path, script_relative_path)
+    #copy the files of the repo into the binary directory
+    shutil.copytree(
+        git_directory_absolute_path,
+        bin_absolute_path,
+        ignore = shutil.ignore_patterns('*.ipynb', 'bin/')
+    )
     script = os.linesep.join([
         '#!/usr/bin/env ipython',
         '"""',
