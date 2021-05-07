@@ -146,7 +146,7 @@ def _repo2cwl(git_directory_path: Repo) -> Tuple[str, List[Dict]]:
     shutil.copytree(r2d.repo, bin_path)
 
     notebooks_paths = _get_notebook_paths_from_dir(r2d.repo)
-    logging.info(notebooks_paths)
+    logger.info(notebooks_paths)
     
     tools = []
     for notebook in notebooks_paths:
