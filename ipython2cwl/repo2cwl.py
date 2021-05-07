@@ -41,7 +41,7 @@ def _store_jn_as_script(notebook_path: str, git_directory_absolute_path: str, im
         logger.info(f"Notebook {notebook_path} does not contains typing annotations. skipping...")
         return None, None
 
-    in_git_dir_script_file = notebook_path[:-6]
+    in_git_dir_script_file = Path(notebook_path[:-6])
 
     script = os.linesep.join([
         '#!/usr/bin/env ipython',
@@ -52,12 +52,12 @@ def _store_jn_as_script(notebook_path: str, git_directory_absolute_path: str, im
         '"""\n\n',
         converter._wrap_script_to_method(converter._tree, converter._variables)
     ])
-    with open(script_absolute_name, 'w') as fd:
+    with open(in_git_dir_script_file, 'w') as fd:
         fd.write(script)
     tool = converter.cwl_command_line_tool(image_id)
     tool_st = os.stat(in_git_dir_script_file)
     os.chmod(in_git_dir_script_file, tool_st.st_mode | stat.S_IEXEC)
-    return tool, script_relative_path
+    return tool, in_git_dir_script_file.name
 
 
 def existing_path(path_str: str):
