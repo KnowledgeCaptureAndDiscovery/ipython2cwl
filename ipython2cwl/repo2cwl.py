@@ -43,10 +43,10 @@ def _store_jn_as_script(notebook_path: str, git_directory_absolute_path: str, bi
         return None, None
 
     #change the extension from ipynb to nothing
-    script_name = Path(notebook_path).stem
-    notebook_parent_relative = Path(notebook_path).relative_to(git_directory_absolute_path).parent
-    script_absolute_path = Path(bin_absolute_path) / notebook_parent_relative / script_name
-
+    notebook_absolute = Path(notebook_path)
+    notebook_name_without_extension = notebook_absolute.stem
+    script_absolute = notebook.parent / f"""{notebook_name_without_extension}.py"""
+    script_relative_to_git = Path(notebook_path).relative_to(git_directory_absolute_path)
     script = os.linesep.join([
         '#!/usr/bin/env ipython',
         '"""',
@@ -56,12 +56,12 @@ def _store_jn_as_script(notebook_path: str, git_directory_absolute_path: str, bi
         '"""\n\n',
         converter._wrap_script_to_method(converter._tree, converter._variables)
     ])
-    with open(script_absolute_path, 'w') as fd:
+    with open(script_absolute, 'w') as fd:
         fd.write(script)
     tool = converter.cwl_command_line_tool(image_id)
-    tool_st = os.stat(script_absolute_path)
-    os.chmod(script_absolute_path, tool_st.st_mode | stat.S_IEXEC)
-    return tool, str(script_absolute_path)
+    tool_st = os.stat(script_absolute)
+    os.chmod(script_absolute, tool_st.st_mode | stat.S_IEXEC)
+    return tool, str(script_relative_to_git)
 
 
 def existing_path(path_str: str):
@@ -160,7 +160,7 @@ def _repo2cwl(git_directory_path: Repo) -> Tuple[str, List[Dict]]:
         )
         if cwl_command_line_tool is None or script_name is None:
             continue
-        cwl_command_line_tool['baseCommand'] = script_name
+        cwl_command_line_tool['baseCommand'] = os.path.join('/app', 'cwl', 'bin', script_name)
         tools.append(cwl_command_line_tool)
     git_directory_path.index.commit("auto-commit")
 
