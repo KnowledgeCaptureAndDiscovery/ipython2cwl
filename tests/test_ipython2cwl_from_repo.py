@@ -38,7 +38,7 @@ class Test2CWLFromRepo(TestCase):
         dockerfile_image_id, cwl_tool = _repo2cwl(jn_repo)
         self.assertEqual(1, len(cwl_tool))
         docker_client = docker.from_env()
-        script = docker_client.containers.run(dockerfile_image_id, '/app/cwl/bin/simple', entrypoint='/bin/cat')
+        script = docker_client.containers.run(dockerfile_image_id, '/app/simple', entrypoint='/bin/cat')
         self.assertIn('fig.figure.savefig(after_transform_data)', script.decode())
         messages_array_arg_line = ast.parse(
             [line.strip() for line in script.decode().splitlines() if '--messages' in line][-1]
@@ -68,7 +68,7 @@ class Test2CWLFromRepo(TestCase):
             {
                 'cwlVersion': "v1.1",
                 'class': 'CommandLineTool',
-                'baseCommand': '/app/cwl/bin/simple',
+                'baseCommand': '/app/simple',
                 'hints': {
                     'DockerRequirement': {'dockerImageId': dockerfile_image_id}
                 },
@@ -139,6 +139,6 @@ class Test2CWLFromRepo(TestCase):
         dockerfile_image_id, new_cwl_tool = _repo2cwl(jn_repo)
         base_commands = [tool['baseCommand'] for tool in new_cwl_tool]
         base_commands.sort()
-        self.assertListEqual(base_commands, ['/app/cwl/bin/simple', '/app/cwl/bin/subdir/simple'])
-        script = docker_client.containers.run(dockerfile_image_id, '/app/cwl/bin/subdir/simple', entrypoint='/bin/cat')
+        self.assertListEqual(base_commands, ['/app/simple', '/app/subdir/simple'])
+        script = docker_client.containers.run(dockerfile_image_id, '/app/subdir/simple', entrypoint='/bin/cat')
         self.assertIn('fig.figure.savefig(after_transform_data)', script.decode())

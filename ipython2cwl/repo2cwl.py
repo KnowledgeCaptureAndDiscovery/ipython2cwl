@@ -40,10 +40,11 @@ def _store_jn_as_script(notebook_path: str, git_directory_absolute_path: str, bi
     if len(converter._variables) == 0:
         logger.info(f"Notebook {notebook_path} does not contains typing annotations. skipping...")
         return None, None
+
     script_relative_path = os.path.relpath(notebook_path, git_directory_absolute_path)[:-6]
     script_relative_parent_directories = script_relative_path.split(os.sep)
     if len(script_relative_parent_directories) > 1:
-        script_absolute_name = os.path.join(bin_absolute_path, os.sep.join(script_relative_parent_directories[:-1]))
+        script_absolute_name = os.sep.join(script_relative_parent_directories[:-1])
         os.makedirs(
             script_absolute_name,
             exist_ok=True)
@@ -52,14 +53,8 @@ def _store_jn_as_script(notebook_path: str, git_directory_absolute_path: str, bi
             os.path.basename(script_relative_path)
         )
     else:
-        script_absolute_name = os.path.join(bin_absolute_path, script_relative_path)
-    #copy the files of the repo into the binary directory
-    shutil.copytree(
-        git_directory_absolute_path,
-        bin_absolute_path,
-        ignore = shutil.ignore_patterns('*.ipynb', 'bin/'),
-        dirs_exist_ok=True
-    )
+        script_absolute_name = os.path.join(script_relative_path)
+
     script = os.linesep.join([
         '#!/usr/bin/env ipython',
         '"""',
@@ -136,7 +131,7 @@ def repo2cwl(argv: Optional[List[str]] = None) -> int:
     image_id, cwl_tools = _repo2cwl(local_git)
     logger.info(f'Generated image id: {image_id}')
     for tool in cwl_tools:
-        base_command_script_name = f'{tool["baseCommand"][len("/app/cwl/bin/"):].replace("/", "_")}.cwl'
+        base_command_script_name = f'{tool["baseCommand"][len("/app"):].replace("/", "_")}.cwl'
         tool_filename = str(output_directory.joinpath(base_command_script_name))
         with open(tool_filename, 'w') as f:
             logger.info(f'Creating CWL command line tool: {tool_filename}')
@@ -171,7 +166,7 @@ def _repo2cwl(git_directory_path: Repo) -> Tuple[str, List[Dict]]:
         )
         if cwl_command_line_tool is None or script_name is None:
             continue
-        cwl_command_line_tool['baseCommand'] = os.path.join('/app', 'cwl', 'bin', script_name)
+        cwl_command_line_tool['baseCommand'] = os.path.join('/app', script_name)
         tools.append(cwl_command_line_tool)
     git_directory_path.index.commit("auto-commit")
 
