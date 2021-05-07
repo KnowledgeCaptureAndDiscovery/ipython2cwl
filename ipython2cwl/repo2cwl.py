@@ -46,7 +46,7 @@ def _store_jn_as_script(notebook_path: str, git_directory_absolute_path: str, bi
     notebook_absolute = Path(notebook_path)
     notebook_relative_to_git = notebook_absolute.relative_to(git_directory_absolute_path)
     notebook_name_without_extension = notebook_absolute.stem
-    script_absolute = Path(bin_absolute_path) / notebook_relative_to_git / notebook_name_without_extension
+    script_absolute = Path(bin_absolute_path) / notebook_relative_to_git.parent / notebook_name_without_extension
     #write the script, return it relative to
     script_relative_to_git = script_absolute.relative_to(bin_absolute_path)
     script = os.linesep.join([
