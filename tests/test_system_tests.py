@@ -67,9 +67,9 @@ class TestConsoleScripts(TestCase):
             0,
             repo2cwl(['-o', output_dir, self.repo_like_dir_imports])
         )
-        self.assertListEqual(['example1.cwl'], [f for f in os.listdir(output_dir) if not f.startswith('.')])
+        self.assertListEqual(['example1_import.cwl'], [f for f in os.listdir(output_dir) if not f.startswith('.')])
 
-        with open(os.path.join(output_dir, 'example1.cwl')) as f:
+        with open(os.path.join(output_dir, 'example1_import.cwl')) as f:
             print('workflow file')
             print(20 * '=')
             print(f.read())
@@ -83,7 +83,7 @@ class TestConsoleScripts(TestCase):
         fac = cwltool.factory.Factory(runtime_context=runtime_context)
 
         try:
-            example1_tool = fac.make(os.path.join(output_dir, 'example1.cwl'))
+            example1_tool = fac.make(os.path.join(output_dir, 'example1_import.cwl'))
         except WorkflowException:
             self.fail("Execution failed")
 
