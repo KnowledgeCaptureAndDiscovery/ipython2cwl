@@ -122,7 +122,8 @@ def repo2cwl(argv: Optional[List[str]] = None) -> int:
     image_id, cwl_tools = _repo2cwl(local_git)
     logger.info(f'Generated image id: {image_id}')
     for tool in cwl_tools:
-        base_command_script_name = f'{tool["baseCommand"][len("/app/cwl/bin/"):].replace("/", "_")}.cwl'
+        script_name_path = Path(tool["baseCommand"]).stem
+        base_command_script_name = f"""{script_name_path}.cwl"""
         tool_filename = str(output_directory.joinpath(base_command_script_name))
         with open(tool_filename, 'w') as f:
             logger.info(f'Creating CWL command line tool: {tool_filename}')
