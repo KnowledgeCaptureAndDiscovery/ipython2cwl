@@ -41,14 +41,11 @@ def _store_jn_as_script(notebook_path: str, git_directory_absolute_path: str, bi
         logger.info(f"Notebook {notebook_path} does not contains typing annotations. skipping...")
         return None, None
 
+    #change the extension from ipynb to nothing
+    script_name = Path(notebook_path).stem
+    notebook_parent_relative = Path(notebook_path).relative_to(git_directory_absolute_path).parent
+    script_absolute_path = Path(bin_absolute_path) / notebook_parent_relative / script_name
 
-    script_relative_path = os.path.relpath(notebook_path, git_directory_absolute_path)[:-6]
-    script_relative_parent_directories = script_relative_path.split(os.sep)
-    if len(script_relative_parent_directories) > 1:
-        script_absolute_name = os.path.join(bin_absolute_path, os.sep.join(script_relative_parent_directories[:-1]))
-        script_absolute_name = os.path.join(script_absolute_name, os.path.basename(script_relative_path))
-    else:
-        script_absolute_name = os.path.join(bin_absolute_path, script_relative_path)
     script = os.linesep.join([
         '#!/usr/bin/env ipython',
         '"""',
@@ -58,13 +55,12 @@ def _store_jn_as_script(notebook_path: str, git_directory_absolute_path: str, bi
         '"""\n\n',
         converter._wrap_script_to_method(converter._tree, converter._variables)
     ])
-    with open(script_absolute_name, 'w') as fd:
+    with open(script_absolute_path, 'w') as fd:
         fd.write(script)
     tool = converter.cwl_command_line_tool(image_id)
-    in_git_dir_script_file = os.path.join(bin_absolute_path, script_relative_path)
-    tool_st = os.stat(in_git_dir_script_file)
-    os.chmod(in_git_dir_script_file, tool_st.st_mode | stat.S_IEXEC)
-    return tool, script_relative_path
+    tool_st = os.stat(script_absolute_path)
+    os.chmod(script_absolute_path, tool_st.st_mode | stat.S_IEXEC)
+    return tool, script_absolute_path
 
 
 def existing_path(path_str: str):
@@ -148,6 +144,7 @@ def _repo2cwl(git_directory_path: Repo) -> Tuple[str, List[Dict]]:
     r2d.repo = git_directory_path.tree().abspath
     bin_path = os.path.join(r2d.repo, 'cwl', 'bin')
     shutil.copytree(r2d.repo, bin_path)
+
     notebooks_paths = _get_notebook_paths_from_dir(r2d.repo)
 
     tools = []
@@ -160,7 +157,7 @@ def _repo2cwl(git_directory_path: Repo) -> Tuple[str, List[Dict]]:
         )
         if cwl_command_line_tool is None or script_name is None:
             continue
-        cwl_command_line_tool['baseCommand'] = os.path.join('/app', 'cwl', 'bin', script_name)
+        cwl_command_line_tool['baseCommand'] = script_name
         tools.append(cwl_command_line_tool)
     git_directory_path.index.commit("auto-commit")
 
