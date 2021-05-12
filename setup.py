@@ -3,7 +3,7 @@ import os.path
 
 from setuptools import setup
 
-name = 'ipython2cwl'
+name = 'ipython2cwlmosorio'
 
 
 def read(rel_path):
@@ -26,7 +26,7 @@ with open(os.sep.join([os.path.abspath(os.path.dirname(__file__)), "README.md"])
 
 setup(
     name=name,
-    version=get_version(f"{name}/__init__.py"),
+    version=get_version(f"ipython2cwl/__init__.py"),
     packages=['ipython2cwl'],
     package_dir={'ipython2cwl': 'ipython2cwl'},
     package_data={'': ['ipython2cwl/templates/*']},
