@@ -82,16 +82,20 @@ def parser_arguments(argv: List[str]):
     return parser.parse_args(argv)
 
 
-def setup_logger():
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.INFO)
+def setup_logger(filename=None):
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    if filename is not None:
+        fh = logging.FileHandler(filename)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+    else:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
 
 
-def repo2cwl(argv: Optional[List[str]] = None) -> int:
-    setup_logger()
+def repo2cwl(argv: Optional[List[str]] = None, log_file: str = None) -> int:
+    setup_logger(log_file)
     argv = sys.argv[1:] if argv is None else argv
     args = parser_arguments(argv)
     uri: ParseResult = args.repo[0]
